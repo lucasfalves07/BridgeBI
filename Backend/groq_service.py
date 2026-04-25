@@ -6,7 +6,7 @@ from sap_dictionary import SAP_DICTIONARY  # noqa
 
 load_dotenv()
 
-client = AsyncGroq(api_key="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")
+client = AsyncGroq(api_key="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")
 
 # Monta o contexto do dicionário SAP para o prompt
 def build_sap_context() -> str:
