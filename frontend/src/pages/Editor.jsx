@@ -10,7 +10,6 @@ function highlightSQL(line) {
     return <span style={{ color: 'rgba(255,215,0,0.55)' }}>{line}</span>
   }
   const parts = []
-  let remaining = line
   const regex = new RegExp(`\\b(${KEYWORDS.join('|')})\\b`, 'g')
   let last = 0, match
   while ((match = regex.exec(line)) !== null) {
@@ -29,20 +28,14 @@ const CHECKS = [
   { label: 'Performance validada',        ok: false },
 ]
 
-const EXPORT_OPTS = [
-  { icon: Download, label: 'Power BI',      desc: 'Importar para Power BI Desktop' },
-  { icon: Database, label: 'CSV Export',    desc: 'Baixar como arquivo CSV' },
-  { icon: Cloud,    label: 'Cloud Storage', desc: 'Enviar para Azure/AWS' },
-]
-
 export default function Editor() {
   const navigate = useNavigate()
-  const [copied, setCopied]     = useState(false)
+  const [copied, setCopied]       = useState(false)
   const [showModal, setShowModal] = useState(false)
 
-  const raw = sessionStorage.getItem('bridgebi_result')
+  const raw    = sessionStorage.getItem('bridgebi_result')
   const result = raw ? JSON.parse(raw) : null
-  const sql = result?.sql || '-- Nenhum script disponível.\n-- Volte ao dashboard e faça uma consulta.'
+  const sql    = result?.sql || '-- Nenhum script disponível.\n-- Volte ao dashboard e faça uma consulta.'
 
   const handleCopy = () => {
     navigator.clipboard.writeText(sql).catch(() => {})
@@ -50,13 +43,51 @@ export default function Editor() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const EXPORT_OPTS = [
+    {
+      icon: Download,
+      label: 'Power BI',
+      desc: 'Importar para Power BI Desktop',
+      action: () => {
+        navigator.clipboard.writeText(sql).catch(() => {})
+        setCopied(true)
+        setShowModal(false)
+        setTimeout(() => setCopied(false), 2000)
+        alert('✅ Script copiado!\n\nNo Power BI Desktop:\n1. Obter Dados → Consulta Nula\n2. Editor Avançado\n3. Cole o script e clique em Concluído')
+      }
+    },
+    {
+      icon: Database,
+      label: 'CSV Export',
+      desc: 'Baixar script como arquivo .sql',
+      action: () => {
+        const blob = new Blob([sql], { type: 'text/plain' })
+        const url  = URL.createObjectURL(blob)
+        const a    = document.createElement('a')
+        a.href     = url
+        a.download = 'bridgebi_query.sql'
+        a.click()
+        URL.revokeObjectURL(url)
+        setShowModal(false)
+      }
+    },
+    {
+      icon: Cloud,
+      label: 'Cloud Storage',
+      desc: 'Enviar para Azure/AWS',
+      action: () => {
+        alert('🚧 Integração com Cloud em desenvolvimento.')
+        setShowModal(false)
+      }
+    },
+  ]
+
   return (
     <div style={{ minHeight: '100vh', background: '#121212', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
       <div style={{ flex: 1, padding: '24px', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
 
-        {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', animation: 'fadeIn .4s both' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <button onClick={() => navigate('/dashboard')} style={{ background: 'none', border: 'none', color: '#FFD700', cursor: 'pointer', display: 'flex' }}>
@@ -75,9 +106,7 @@ export default function Editor() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '16px' }}>
 
-          {/* CODE PANEL */}
           <div style={{ background: '#0a0a0a', borderRadius: '8px', border: '1px solid rgba(255,215,0,0.2)', overflow: 'hidden', animation: 'slideInL .4s both' }}>
-            {/* Bar */}
             <div style={{ background: '#1a1a1a', borderBottom: '1px solid rgba(255,215,0,0.2)', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {['#ff5f56','#ffbd2e','#27c93f'].map((c,i) => <div key={i} style={{ width: '11px', height: '11px', borderRadius: '50%', background: c }} />)}
@@ -87,8 +116,6 @@ export default function Editor() {
                 {copied ? <><Check size={13}/> Copiado!</> : <><Copy size={13}/> Copiar</>}
               </button>
             </div>
-
-            {/* Code */}
             <div style={{ padding: '20px', overflowX: 'auto' }}>
               {sql.split('\n').map((line, i) => (
                 <div key={i} style={{ display: 'flex', fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', lineHeight: '1.8' }}>
@@ -99,10 +126,8 @@ export default function Editor() {
             </div>
           </div>
 
-          {/* SIDE */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
-            {/* Explanation */}
             {result?.explanation && (
               <div style={{ background: '#2C2C2C', borderRadius: '8px', border: '1px solid rgba(255,215,0,0.2)', padding: '16px', animation: 'slideInR .4s both' }}>
                 <p style={{ color: '#FFD700', fontSize: '12px', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '.5px' }}>Sobre este script</p>
@@ -117,7 +142,6 @@ export default function Editor() {
               </div>
             )}
 
-            {/* Validation */}
             <div style={{ background: '#2C2C2C', borderRadius: '8px', border: '1px solid rgba(255,215,0,0.2)', padding: '20px', animation: 'slideInR .4s .1s both' }}>
               <p style={{ color: '#fff', fontSize: '14px', marginBottom: '14px' }}>Validação</p>
               {CHECKS.map((c, i) => (
@@ -130,7 +154,6 @@ export default function Editor() {
               ))}
             </div>
 
-            {/* Export */}
             <button onClick={() => setShowModal(true)} style={{
               width: '100%', background: '#FFD700', color: '#121212', border: 'none',
               borderRadius: '8px', padding: '14px', fontSize: '14px', fontWeight: 600,
@@ -143,7 +166,6 @@ export default function Editor() {
               <Download size={18} /> Gerar Visualização
             </button>
 
-            {/* Risk */}
             <div style={{ background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.25)', borderRadius: '8px', padding: '14px', animation: 'fadeIn .4s .5s both' }}>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', lineHeight: 1.5 }}>
                 ⚠️ <strong style={{ color: '#FFD700' }}>Atenção:</strong> Sempre revise a lógica antes de aplicar em produção
@@ -153,7 +175,6 @@ export default function Editor() {
         </div>
       </div>
 
-      {/* MODAL */}
       {showModal && (
         <div onClick={() => setShowModal(false)} style={{
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)',
@@ -168,7 +189,7 @@ export default function Editor() {
           }}>
             <h3 style={{ color: '#fff', fontSize: '18px', fontWeight: 400, marginBottom: '20px' }}>Selecione o Destino</h3>
             {EXPORT_OPTS.map((opt, i) => (
-              <button key={opt.label} style={{
+              <button key={opt.label} onClick={opt.action} style={{
                 width: '100%', background: '#1a1a1a',
                 border: '1px solid rgba(255,215,0,0.2)', borderRadius: '8px',
                 padding: '14px', marginBottom: '10px', cursor: 'pointer',
