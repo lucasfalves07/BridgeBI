@@ -96,7 +96,10 @@ BridgeBI/
 
 ## Equipe
 
-Desenvolvido por alunos do curso de Análise e Desenvolvimento de Sistemas — 2026.
+Desenvolvido por alunos do curso de Sistemas de Informação do Instituto Mauá de Tecnologia — 2026:
+Lucas Alves
+Vitor Molina
+Victor Naoki Sato
 
 ---
 
