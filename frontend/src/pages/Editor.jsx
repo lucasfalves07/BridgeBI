@@ -57,20 +57,30 @@ export default function Editor() {
       }
     },
     {
-      icon: Database,
-      label: 'CSV Export',
-      desc: 'Baixar script como arquivo .sql',
-      action: () => {
-        const blob = new Blob([sql], { type: 'text/plain' })
-        const url  = URL.createObjectURL(blob)
-        const a    = document.createElement('a')
-        a.href     = url
-        a.download = 'bridgebi_query.sql'
-        a.click()
-        URL.revokeObjectURL(url)
-        setShowModal(false)
-      }
-    },
+  icon: Database,
+  label: 'CSV Export',
+  desc: 'Baixar dados simulados como CSV',
+  action: async () => {
+    setShowModal(false)
+    try {
+      const res = await fetch('/api/generate-csv', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sql, tables: result?.tables || [] }),
+      })
+      if (!res.ok) throw new Error('Erro ao gerar CSV')
+      const blob = await res.blob()
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement('a')
+      a.href     = url
+      a.download = 'bridgebi_data.csv'
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (e) {
+      alert('Erro ao gerar CSV. Verifique se o backend está rodando.')
+    }
+  }
+},
     {
       icon: Cloud,
       label: 'Cloud Storage',
