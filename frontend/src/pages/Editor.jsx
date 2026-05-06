@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Copy, Check, Download, Database, Cloud } from 'lucide-react'
+import { ArrowLeft, Copy, Check, Download, Database } from 'lucide-react'
 import Navbar from '../components/Navbar'
 
 const KEYWORDS = ['SELECT','FROM','WHERE','INNER JOIN','LEFT JOIN','ORDER BY','ON','AND','IN','AS','GROUP BY','HAVING','DISTINCT']
@@ -25,7 +25,6 @@ const CHECKS = [
   { label: 'Colunas de valores corretas', ok: true },
   { label: 'Joins otimizados',            ok: true },
   { label: 'Filtros de data aplicados',   ok: true },
-  { label: 'Performance validada',        ok: false },
 ]
 
 export default function Editor() {
@@ -47,47 +46,52 @@ export default function Editor() {
     {
       icon: Download,
       label: 'Power BI',
-      desc: 'Importar para Power BI Desktop',
-      action: () => {
-        navigator.clipboard.writeText(sql).catch(() => {})
-        setCopied(true)
+      desc: 'Baixar query para Power BI Desktop',
+      action: async () => {
         setShowModal(false)
-        setTimeout(() => setCopied(false), 2000)
-        alert('✅ Script copiado!\n\nNo Power BI Desktop:\n1. Obter Dados → Consulta Nula\n2. Editor Avançado\n3. Cole o script e clique em Concluído')
+        try {
+          const res = await fetch('/api/generate-powerbi', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sql, tables: result?.tables || [] }),
+          })
+          if (!res.ok) throw new Error('Erro ao gerar arquivo')
+          const blob = await res.blob()
+          const url  = URL.createObjectURL(blob)
+          const a    = document.createElement('a')
+          a.href     = url
+          a.download = 'bridgebi_query.m'
+          a.click()
+          URL.revokeObjectURL(url)
+          alert('✅ Arquivo baixado!\n\nNo Power BI Desktop:\n1. Obter Dados → Consulta Nula\n2. Clique em "Editor Avançado"\n3. Apague o conteúdo e cole o arquivo .m\n4. Clique em Concluído')
+        } catch (e) {
+          alert('Erro ao gerar arquivo. Verifique se o backend está rodando.')
+        }
       }
     },
     {
-  icon: Database,
-  label: 'CSV Export',
-  desc: 'Baixar dados simulados como CSV',
-  action: async () => {
-    setShowModal(false)
-    try {
-      const res = await fetch('/api/generate-csv', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sql, tables: result?.tables || [] }),
-      })
-      if (!res.ok) throw new Error('Erro ao gerar CSV')
-      const blob = await res.blob()
-      const url  = URL.createObjectURL(blob)
-      const a    = document.createElement('a')
-      a.href     = url
-      a.download = 'bridgebi_data.csv'
-      a.click()
-      URL.revokeObjectURL(url)
-    } catch (e) {
-      alert('Erro ao gerar CSV. Verifique se o backend está rodando.')
-    }
-  }
-},
-    {
-      icon: Cloud,
-      label: 'Cloud Storage',
-      desc: 'Enviar para Azure/AWS',
-      action: () => {
-        alert('🚧 Integração com Cloud em desenvolvimento.')
+      icon: Database,
+      label: 'CSV Export',
+      desc: 'Baixar dados simulados como XLSX',
+      action: async () => {
         setShowModal(false)
+        try {
+          const res = await fetch('/api/generate-csv', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sql, tables: result?.tables || [] }),
+          })
+          if (!res.ok) throw new Error('Erro ao gerar arquivo')
+          const blob = await res.blob()
+          const url  = URL.createObjectURL(blob)
+          const a    = document.createElement('a')
+          a.href     = url
+          a.download = 'bridgebi_data.xlsx'
+          a.click()
+          URL.revokeObjectURL(url)
+        } catch (e) {
+          alert('Erro ao gerar arquivo. Verifique se o backend está rodando.')
+        }
       }
     },
   ]
