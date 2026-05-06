@@ -5,12 +5,33 @@ import NetworkBackground from '../components/NetworkBackground'
 
 export default function Login() {
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
+  const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError]       = useState('')
+  const [loading, setLoading]   = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    navigate('/dashboard')
+    setError('')
+    setLoading(true)
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+      if (!res.ok) {
+        setError('Email ou senha inválidos')
+        setLoading(false)
+        return
+      }
+      const user = await res.json()
+      sessionStorage.setItem('bridgebi_user', JSON.stringify(user))
+      navigate('/dashboard')
+    } catch {
+      setError('Erro ao conectar com o servidor')
+    }
+    setLoading(false)
   }
 
   return (
@@ -21,7 +42,6 @@ export default function Login() {
     }}>
       <NetworkBackground />
 
-      {/* Card */}
       <div style={{
         position: 'relative', zIndex: 10,
         background: '#1E1E1E', borderRadius: '16px', padding: '32px',
@@ -49,12 +69,11 @@ export default function Login() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* Email */}
           <div style={{ position: 'relative', marginBottom: '16px', animation: 'slideInL .4s .5s both' }}>
             <User size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#FFD700' }} />
             <input
               type="text" value={email} onChange={e => setEmail(e.target.value)}
-              placeholder="E-mail ou Usuário"
+              placeholder="E-mail"
               style={{
                 width: '100%', background: '#2C2C2C', color: '#fff',
                 border: '1px solid rgba(255,215,0,0.3)', borderRadius: '8px',
@@ -66,7 +85,6 @@ export default function Login() {
             />
           </div>
 
-          {/* Senha */}
           <div style={{ position: 'relative', marginBottom: '12px', animation: 'slideInL .4s .6s both' }}>
             <Lock size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#FFD700' }} />
             <input
@@ -83,35 +101,33 @@ export default function Login() {
             />
           </div>
 
-          {/* Esqueceu */}
-          <div style={{ textAlign: 'right', marginBottom: '18px', animation: 'fadeIn .4s .7s both' }}>
-            <button type="button" style={{ background: 'none', border: 'none', color: '#FFD700', fontSize: '13px', cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>
-              Esqueceu a senha?
-            </button>
-          </div>
+          {error && (
+            <div style={{ background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.3)', borderRadius: '8px', padding: '10px', marginBottom: '14px', color: '#ff8080', fontSize: '13px', textAlign: 'center' }}>
+              {error}
+            </div>
+          )}
 
-          {/* Entrar */}
-          <button type="submit" style={{
+          <button type="submit" disabled={loading} style={{
             width: '100%', background: '#FFD700', color: '#121212',
             border: 'none', borderRadius: '8px', padding: '14px',
             fontSize: '14px', fontWeight: 600, letterSpacing: '1.5px',
-            cursor: 'pointer', fontFamily: 'Inter, sans-serif',
-            boxShadow: '0 4px 20px rgba(255,215,0,0.2)',
-            animation: 'fadeUp .4s .8s both',
-            transition: 'opacity .2s',
-          }}
-            onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
-            onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-          >
-            ENTRAR
+            cursor: loading ? 'not-allowed' : 'pointer',
+            fontFamily: 'Inter, sans-serif',
+            opacity: loading ? 0.7 : 1,
+            animation: 'fadeUp .4s .8s both', transition: 'opacity .2s',
+          }}>
+            {loading ? 'ENTRANDO...' : 'ENTRAR'}
           </button>
         </form>
 
-        {/* Criar conta */}
-        <div style={{ textAlign: 'center', marginTop: '14px', animation: 'fadeIn .4s .9s both' }}>
-          <button style={{ background: 'none', border: 'none', color: '#FFD700', fontSize: '13px', cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>
-            Criar conta
-          </button>
+        <div style={{ marginTop: '20px', padding: '14px', background: 'rgba(255,215,0,0.05)', borderRadius: '8px', border: '1px solid rgba(255,215,0,0.1)' }}>
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textAlign: 'center', marginBottom: '6px' }}>Credenciais de demonstração</p>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textAlign: 'center' }}>
+            Admin: admin@bridgebi.com / admin123
+          </p>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textAlign: 'center' }}>
+            Funcionário: funcionario@bridgebi.com / func123
+          </p>
         </div>
       </div>
     </div>

@@ -4,16 +4,18 @@ import Dashboard from './pages/Dashboard'
 import AIThinking from './pages/AIThinking'
 import Editor from './pages/Editor'
 import History from './pages/History'
+import AdminPanel from './pages/AdminPanel'
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/"            element={<Login />} />
-      <Route path="/dashboard"   element={<Dashboard />} />
-      <Route path="/thinking"    element={<AIThinking />} />
-      <Route path="/editor"      element={<Editor />} />
-      <Route path="/history"     element={<History />} />
-      <Route path="*"            element={<Navigate to="/" />} />
+      <Route path="/"          element={<Login />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/thinking"  element={<AIThinking />} />
+      <Route path="/editor"    element={<Editor />} />
+      <Route path="/history"   element={<History />} />
+      <Route path="/admin"     element={<AdminPanel />} />
+      <Route path="*"          element={<Navigate to="/" />} />
     </Routes>
   )
 }
