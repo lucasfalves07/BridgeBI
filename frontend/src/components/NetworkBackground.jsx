@@ -8,6 +8,8 @@ export default function NetworkBackground() {
     const ctx = canvas.getContext('2d')
     let animId
 
+    const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark'
+
     const resize = () => {
       canvas.width  = canvas.offsetWidth
       canvas.height = canvas.offsetHeight
@@ -25,10 +27,13 @@ export default function NetworkBackground() {
 
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
+      const color = isDark() ? '16,185,129' : '16,185,129'
+      const opacity = isDark() ? 0.5 : 0.35
+
       pts.forEach(p => {
         ctx.beginPath()
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
-        ctx.fillStyle = 'rgba(255,215,0,0.5)'
+        ctx.fillStyle = `rgba(${color},${opacity})`
         ctx.fill()
         p.x += p.vx; p.y += p.vy
         if (p.x < 0 || p.x > canvas.width)  p.vx *= -1
@@ -43,7 +48,7 @@ export default function NetworkBackground() {
             ctx.beginPath()
             ctx.moveTo(pts[i].x, pts[i].y)
             ctx.lineTo(pts[j].x, pts[j].y)
-            ctx.strokeStyle = `rgba(180,140,0,${0.15 * (1 - d / 140)})`
+            ctx.strokeStyle = `rgba(${color},${0.12 * (1 - d / 140)})`
             ctx.lineWidth = 0.6
             ctx.stroke()
           }
@@ -65,7 +70,7 @@ export default function NetworkBackground() {
       style={{
         position: 'absolute', inset: 0,
         width: '100%', height: '100%',
-        opacity: 0.25, pointerEvents: 'none',
+        opacity: 0.3, pointerEvents: 'none',
       }}
     />
   )

@@ -71,7 +71,7 @@ def save_query(question: str, sql: str, tables: str, status: str = "gerado", use
     conn.close()
 
 
-def get_history(user_email: str = None, role: str = "funcionario"):
+def get_history(user_email: str = "", role: str = "funcionario"):
     conn = get_conn()
     if role == "admin":
         rows = conn.execute("SELECT * FROM query_history ORDER BY created_at DESC LIMIT 100").fetchall()
