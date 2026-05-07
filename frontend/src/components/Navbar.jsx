@@ -27,9 +27,13 @@ export default function Navbar() {
       animation: 'slideInL .4s both',
     }}>
       <div onClick={() => navigate('/dashboard')} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-        <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
-          <path d="M 5 20 L 15 10 L 25 20 L 35 10" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-          <path d="M 5 30 L 15 20 L 25 30 L 35 20" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+        <svg width="36" height="36" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="20" r="10" fill="none" stroke="var(--accent)" strokeWidth="5"/>
+          <circle cx="15" cy="75" r="10" fill="none" stroke="var(--accent)" strokeWidth="5"/>
+          <circle cx="85" cy="75" r="10" fill="none" stroke="var(--accent)" strokeWidth="5"/>
+          <line x1="43" y1="28" x2="22" y2="67" stroke="var(--accent)" strokeWidth="3.5" strokeLinecap="round"/>
+          <line x1="57" y1="28" x2="78" y2="67" stroke="var(--accent)" strokeWidth="3.5" strokeLinecap="round"/>
+          <line x1="25" y1="75" x2="75" y2="75" stroke="var(--accent)" strokeWidth="3.5" strokeLinecap="round"/>
         </svg>
         <span style={{ color: 'var(--accent)', fontSize: '20px', fontWeight: 600, letterSpacing: '1px' }}>BridgeBI</span>
       </div>
