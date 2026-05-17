@@ -51,6 +51,7 @@ O BridgeBI é uma solução desenvolvida como Projeto Integrador com o objetivo 
 ```bash
 cd Backend
 py -3.11 -m pip install "fastapi==0.115.0" "uvicorn==0.30.1" "groq==0.9.0" "python-dotenv==1.0.1" "pydantic==2.10.0" "httpx==0.27.0"
+uvicorn main:app --reload
 ```
 
 Crie um arquivo `.env` na pasta `Backend`:
