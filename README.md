@@ -74,27 +74,6 @@ npm run dev
 
 Acesse: http://localhost:5173
 
----
-
-## Estrutura do Projeto
-
-```
-BridgeBI/
-├── Backend/
-│   ├── main.py            # API FastAPI
-│   ├── groq_service.py    # Integração com IA
-│   ├── sap_dictionary.py  # Dicionário de dados SAP
-│   ├── database.py        # SQLite
-│   └── requirements.txt
-└── frontend/
-    └── src/
-        ├── pages/         # Login, Dashboard, AIThinking, Editor, Histórico
-        ├── components/    # Navbar, NetworkBackground
-        └── services/      # API client
-```
-
----
-
 ## Equipe
 
 Desenvolvido por alunos do curso de Sistemas de Informação do Instituto Mauá de Tecnologia — 2026:
