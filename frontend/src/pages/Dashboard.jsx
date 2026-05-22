@@ -17,12 +17,12 @@ export default function Dashboard() {
   const user    = JSON.parse(sessionStorage.getItem('bridgebi_user') || '{}')
   const isAdmin = user.role === 'admin'
 
-  const [users, setUsers]           = useState([])
-  const [selectedUser, setSelected] = useState(null)
-  const [history, setHistory]       = useState([])
-  const [showModal, setShowModal]   = useState(false)
-  const [form, setForm]             = useState({ name: '', email: '', password: '', role: 'funcionario' })
-  const [formError, setFormError]   = useState('')
+  const [users, setUsers]             = useState([])
+  const [selectedUser, setSelected]   = useState(null)
+  const [history, setHistory]         = useState([])
+  const [showModal, setShowModal]     = useState(false)
+  const [form, setForm]               = useState({ name: '', email: '', password: '', role: 'funcionario' })
+  const [formError, setFormError]     = useState('')
   const [loadingForm, setLoadingForm] = useState(false)
 
   useEffect(() => { if (isAdmin) fetchUsers() }, [])
@@ -61,9 +61,7 @@ export default function Dashboard() {
   const handleDelete = async (id) => {
     if (!confirm('Deseja remover este usuário?')) return
     await fetch(`/api/users/${id}`, { method: 'DELETE' })
-    fetchUsers()
-    setSelected(null)
-    setHistory([])
+    fetchUsers(); setSelected(null); setHistory([])
   }
 
   const handleSearch = (q) => {
@@ -80,15 +78,17 @@ export default function Dashboard() {
     fontFamily: 'Inter, sans-serif', outline: 'none', transition: 'border-color .2s',
   }
 
+  const isMobile = window.innerWidth <= 768
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', flexDirection: 'column', transition: 'background .3s' }}>
       <Navbar />
 
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 24px 100px' }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '32px 16px 100px' }}>
         <div style={{ width: '100%', maxWidth: '700px', animation: 'fadeUp .4s .2s both' }}>
 
-          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-            <h2 style={{ color: 'var(--text)', fontSize: '32px', fontWeight: 600, marginBottom: '8px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <h2 style={{ color: 'var(--text)', fontSize: 'clamp(20px,5vw,32px)', fontWeight: 600, marginBottom: '8px' }}>
               A Ponte Entre Dados e Insights
             </h2>
             <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
@@ -96,33 +96,33 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div style={{ position: 'relative', marginBottom: '40px' }}>
+          <div style={{ position: 'relative', marginBottom: '32px' }}>
             <div style={{ position: 'absolute', inset: 0, background: 'var(--accent-glow)', borderRadius: '10px', filter: 'blur(8px)' }} />
             <div style={{ position: 'relative', background: 'var(--card)', borderRadius: '10px', border: '1.5px solid var(--accent)', display: 'flex', alignItems: 'center', boxShadow: 'var(--shadow)' }}>
-              <Search size={18} style={{ position: 'absolute', left: '20px', color: 'var(--accent)', pointerEvents: 'none' }} />
+              <Search size={18} style={{ position: 'absolute', left: '16px', color: 'var(--accent)', pointerEvents: 'none' }} />
               <input
                 type="text" value={query} onChange={e => setQuery(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSearch()}
                 placeholder="Qual insight você precisa extrair hoje?"
-                style={{ width: '100%', background: 'transparent', color: 'var(--text)', border: 'none', padding: '20px 20px 20px 52px', fontSize: '15px', fontFamily: 'Inter, sans-serif', outline: 'none' }}
+                style={{ width: '100%', background: 'transparent', color: 'var(--text)', border: 'none', padding: '18px 16px 18px 48px', fontSize: '14px', fontFamily: 'Inter, sans-serif', outline: 'none' }}
               />
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px' }}>
+          {/* Cards — 3 colunas desktop, 1 mobile */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px' }} className="grid-3">
             {quickLinks.map((link, i) => (
               <button key={link.label} onClick={() => handleSearch(link.question)} style={{
                 background: 'var(--card)', border: '1px solid var(--border)',
-                borderRadius: '10px', padding: '24px', cursor: 'pointer',
+                borderRadius: '10px', padding: '20px 16px', cursor: 'pointer',
                 textAlign: 'center', transition: 'all .2s',
                 animation: `fadeUp .4s ${0.3 + i * 0.1}s both`,
-                fontFamily: 'Inter, sans-serif',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                fontFamily: 'Inter, sans-serif', boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
               }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.background = 'var(--accent-dim)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--card)'; e.currentTarget.style.transform = 'translateY(0)' }}
               >
-                <link.icon size={32} style={{ color: 'var(--accent)', margin: '0 auto 12px', display: 'block' }} />
+                <link.icon size={28} style={{ color: 'var(--accent)', margin: '0 auto 10px', display: 'block' }} />
                 <p style={{ color: 'var(--text)', fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>{link.label}</p>
                 <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{link.table}</p>
               </button>
@@ -130,9 +130,10 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Painel Admin */}
         {isAdmin && (
-          <div style={{ width: '100%', maxWidth: '1000px', marginTop: '60px', animation: 'fadeUp .4s .5s both' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+          <div style={{ width: '100%', maxWidth: '1000px', marginTop: '48px', animation: 'fadeUp .4s .5s both' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
               <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent)', fontSize: '13px', fontWeight: 500 }}>
                 <Users size={15} /> Painel Administrativo
@@ -140,13 +141,12 @@ export default function Dashboard() {
               <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '14px' }}>
               <button onClick={() => setShowModal(true)} style={{
                 display: 'flex', alignItems: 'center', gap: '8px',
                 background: 'var(--accent)', color: '#fff', border: 'none',
-                borderRadius: '8px', padding: '10px 18px', fontSize: '13px',
-                fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif',
-                transition: 'opacity .2s',
+                borderRadius: '8px', padding: '10px 16px', fontSize: '13px',
+                fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'opacity .2s',
               }}
                 onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
                 onMouseLeave={e => e.currentTarget.style.opacity = '1'}
@@ -155,9 +155,12 @@ export default function Dashboard() {
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '16px' }}>
-              <div style={{ background: 'var(--card)', borderRadius: '10px', border: '1px solid var(--border)', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border2)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {/* Grid admin — empilha no mobile */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+
+              {/* Lista usuários */}
+              <div style={{ background: 'var(--card)', borderRadius: '10px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border2)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Users size={14} style={{ color: 'var(--accent)' }} />
                   <span style={{ color: 'var(--text)', fontSize: '13px', fontWeight: 500 }}>Usuários ({users.length})</span>
                 </div>
@@ -193,20 +196,23 @@ export default function Dashboard() {
                 ))}
               </div>
 
-              <div style={{ background: 'var(--card)', borderRadius: '10px', border: '1px solid var(--border)', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+              {/* Histórico do usuário selecionado */}
+              <div style={{ background: 'var(--card)', borderRadius: '10px', border: '1px solid var(--border)', overflow: 'hidden' }}>
                 {!selectedUser ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '250px', color: 'var(--text-muted)' }}>
-                    <Clock size={36} style={{ marginBottom: '10px', opacity: .4 }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '200px', color: 'var(--text-muted)' }}>
+                    <Clock size={32} style={{ marginBottom: '10px', opacity: .4 }} />
                     <p style={{ fontSize: '13px' }}>Selecione um usuário para ver o histórico</p>
                   </div>
                 ) : (
                   <>
-                    <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Clock size={14} style={{ color: 'var(--accent)' }} />
-                        <span style={{ color: 'var(--text)', fontSize: '13px', fontWeight: 500 }}>Histórico de {selectedUser}</span>
+                    <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
+                        <Clock size={14} style={{ color: 'var(--accent)', flexShrink: 0 }} />
+                        <span style={{ color: 'var(--text)', fontSize: '13px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          Histórico de {selectedUser}
+                        </span>
                       </div>
-                      <button onClick={() => { setSelected(null); setHistory([]) }} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                      <button onClick={() => { setSelected(null); setHistory([]) }} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', flexShrink: 0 }}>
                         <X size={15} />
                       </button>
                     </div>
@@ -217,15 +223,16 @@ export default function Dashboard() {
                         {history.map((h, i) => (
                           <div key={h.id} style={{ padding: '12px 16px', borderBottom: '1px solid var(--border2)', animation: `fadeUp .3s ${i * 0.04}s both` }}>
                             <p style={{ color: 'var(--text)', fontSize: '13px', marginBottom: '6px', lineHeight: 1.4 }}>{h.question}</p>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
                               <span style={{ color: '#10B981', fontSize: '11px' }}>✓ {h.status}</span>
                               <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>{new Date(h.created_at).toLocaleString('pt-BR')}</span>
                               {h.tables && h.tables.split(', ').filter(Boolean).map(t => (
                                 <span key={t} style={{ background: 'var(--accent-dim)', border: '1px solid var(--border)', borderRadius: '4px', padding: '1px 6px', fontSize: '10px', color: 'var(--accent)' }}>{t}</span>
                               ))}
                             </div>
-                            <div style={{ marginTop: '8px', background: 'var(--code-bg)', borderRadius: '6px', padding: '8px', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', color: 'var(--text-muted)', overflowX: 'auto', whiteSpace: 'pre', border: '1px solid var(--border2)' }}>
-                              {h.sql?.slice(0, 200)}{h.sql?.length > 200 ? '...' : ''}
+                            {/* Script com scroll horizontal */}
+                            <div style={{ background: 'var(--code-bg)', borderRadius: '6px', padding: '8px', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', color: 'var(--text-muted)', overflowX: 'auto', whiteSpace: 'pre', border: '1px solid var(--border2)', maxHeight: '120px', overflowY: 'auto' }}>
+                              {h.sql?.slice(0, 300)}{h.sql?.length > 300 ? '...' : ''}
                             </div>
                           </div>
                         ))}
@@ -246,8 +253,8 @@ export default function Dashboard() {
       </footer>
 
       {showModal && (
-        <div onClick={() => setShowModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', zIndex: 50, animation: 'fadeIn .2s both' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '28px', width: '100%', maxWidth: '400px', animation: 'fadeUp .2s both', boxShadow: 'var(--shadow)' }}>
+        <div onClick={() => setShowModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', zIndex: 50, animation: 'fadeIn .2s both' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '24px', width: '100%', maxWidth: '400px', animation: 'fadeUp .2s both', boxShadow: 'var(--shadow)' }}>
             <h3 style={{ color: 'var(--accent)', fontSize: '16px', fontWeight: 600, marginBottom: '20px' }}>Novo Usuário</h3>
             <form onSubmit={handleCreate}>
               {[
@@ -257,7 +264,8 @@ export default function Dashboard() {
               ].map(f => (
                 <div key={f.key} style={{ marginBottom: '14px' }}>
                   <label style={{ color: 'var(--text-muted)', fontSize: '12px', display: 'block', marginBottom: '6px' }}>{f.label}</label>
-                  <input type={f.type} placeholder={f.placeholder} value={form[f.key]} onChange={e => setForm({ ...form, [f.key]: e.target.value })} required style={inputStyle}
+                  <input type={f.type} placeholder={f.placeholder} value={form[f.key]}
+                    onChange={e => setForm({ ...form, [f.key]: e.target.value })} required style={inputStyle}
                     onFocus={e => e.target.style.borderColor = 'var(--accent)'}
                     onBlur={e => e.target.style.borderColor = 'var(--border)'}
                   />
@@ -274,7 +282,7 @@ export default function Dashboard() {
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, background: 'none', border: '1px solid var(--border)', borderRadius: '8px', padding: '12px', color: 'var(--text-muted)', fontSize: '13px', cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>Cancelar</button>
                 <button type="submit" disabled={loadingForm} style={{ flex: 1, background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: '8px', padding: '12px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif', opacity: loadingForm ? 0.7 : 1 }}>
-                  {loadingForm ? 'Criando...' : 'Criar Usuário'}
+                  {loadingForm ? 'Criando...' : 'Criar'}
                 </button>
               </div>
             </form>
