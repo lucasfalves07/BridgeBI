@@ -30,49 +30,14 @@ O BridgeBI é uma solução desenvolvida como Projeto Integrador com o objetivo 
 
 ## Funcionalidades
 
-- 🔐 Autenticação de usuários
-- 💬 Interpretação de perguntas em linguagem natural
-- 🗂️ Dicionário de dados SAP com 10 tabelas (MSEG, EKPO, EKKO, MARA, VBAP, VBAK, AFKO, AFPO, VBRK, VBRP)
-- ⚙️ Geração automática de scripts SQL compatíveis com SAP HANA
-- 📋 Histórico de consultas
-- 📤 Exportação para Power BI
+- Autenticação de usuários
+- Interpretação de perguntas em linguagem natural
+- Dicionário de dados SAP com 10 tabelas (MSEG, EKPO, EKKO, MARA, VBAP, VBAK, AFKO, AFPO, VBRK, VBRP)
+- Geração automática de scripts SQL compatíveis com SAP HANA
+- Histórico de consultas
+- Exportação para Power BI
 
----
 
-## Como Rodar
-
-### Pré-requisitos
-- Python 3.11
-- Node.js 18+
-- Conta gratuita no [Groq](https://console.groq.com)
-
-### Backend
-
-```bash
-cd Backend
-py -3.11 -m pip install "fastapi==0.115.0" "uvicorn==0.30.1" "groq==0.9.0" "python-dotenv==1.0.1" "pydantic==2.10.0" "httpx==0.27.0"
-uvicorn main:app --reload
-```
-
-Crie um arquivo `.env` na pasta `Backend`:
-
-```
-GROQ_API_KEY=sua_chave_aqui
-```
-
-```bash
-py -3.11 main.py
-```
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Acesse: http://localhost:5173
 
 ## Equipe
 
