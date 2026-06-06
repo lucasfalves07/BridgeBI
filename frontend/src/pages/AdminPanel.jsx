@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Users, Plus, Trash2, Clock, ChevronRight, X } from 'lucide-react'
+import { Users, Plus, Trash2, Clock, ChevronRight, X, Edit2, Check } from 'lucide-react'
 import Navbar from '../components/Navbar'
 
 export default function AdminPanel() {
@@ -12,6 +12,9 @@ export default function AdminPanel() {
   const [loading, setLoading]       = useState(false)
   const [form, setForm]             = useState({ name: '', email: '', password: '', role: 'funcionario' })
   const [error, setError]           = useState('')
+  const [editingId, setEditingId]   = useState(null)
+  const [editForm, setEditForm]     = useState({ name: '', email: '' })
+  const [editError, setEditError]   = useState('')
 
   useEffect(() => {
     const user = JSON.parse(sessionStorage.getItem('bridgebi_user') || '{}')
@@ -58,11 +61,40 @@ export default function AdminPanel() {
     setHistory([])
   }
 
+  const handleEdit = (user) => {
+    setEditingId(user.id)
+    setEditForm({ name: user.name, email: user.email })
+    setEditError('')
+  }
+
+  const handleSaveEdit = async (id) => {
+    setEditError('')
+    const res = await fetch(`/api/users/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(editForm),
+    })
+    if (res.ok) {
+      setEditingId(null)
+      fetchUsers()
+    } else {
+      const data = await res.json()
+      setEditError(data.detail || 'Erro ao editar usuário')
+    }
+  }
+
   const inputStyle = {
     width: '100%', background: 'var(--input-bg)', color: 'var(--text)',
     border: '1px solid var(--border)', borderRadius: '8px',
     padding: '11px 14px', fontSize: '14px',
     fontFamily: 'Inter, sans-serif', outline: 'none', transition: 'border-color .2s',
+  }
+
+  const editInputStyle = {
+    background: 'var(--input-bg)', color: 'var(--text)',
+    border: '1px solid var(--accent)', borderRadius: '6px',
+    padding: '5px 8px', fontSize: '12px',
+    fontFamily: 'Inter, sans-serif', outline: 'none', width: '100%',
   }
 
   return (
@@ -88,59 +120,100 @@ export default function AdminPanel() {
           </button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '16px' }} className="grid-2">
+        <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: '16px' }} className="grid-2">
 
-          <div style={{ background: 'var(--card)', borderRadius: '10px', border: '1px solid var(--border)', overflow: 'hidden', animation: 'slideInL .4s both' }}>
+          {/* Lista usuários */}
+          <div style={{ background: 'var(--card)', borderRadius: '10px', border: '1px solid var(--border)', overflow: 'hidden' }}>
             <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border2)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Users size={14} style={{ color: 'var(--accent)' }} />
               <span style={{ color: 'var(--text)', fontSize: '13px', fontWeight: 500 }}>Usuários ({users.length})</span>
             </div>
             {users.map(u => (
-              <div key={u.id} onClick={() => fetchHistory(u.email)} style={{
-                padding: '12px 16px', cursor: 'pointer',
-                borderBottom: '1px solid var(--border2)',
-                background: selectedUser === u.email ? 'var(--accent-dim)' : 'transparent',
+              <div key={u.id} style={{
+                padding: '12px 16px', borderBottom: '1px solid var(--border2)',
+                background: selectedUser === u.email && editingId !== u.id ? 'var(--accent-dim)' : 'transparent',
                 borderLeft: selectedUser === u.email ? '3px solid var(--accent)' : '3px solid transparent',
-                transition: 'background .2s', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              }}
-                onMouseEnter={e => { if (selectedUser !== u.email) e.currentTarget.style.background = 'var(--bg3)' }}
-                onMouseLeave={e => { if (selectedUser !== u.email) e.currentTarget.style.background = 'transparent' }}
-              >
-                <div>
-                  <p style={{ color: 'var(--text)', fontSize: '13px', marginBottom: '2px', fontWeight: 500 }}>{u.name}</p>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '11px' }}>{u.email}</p>
-                  <p style={{ color: u.role === 'admin' ? 'var(--accent)' : 'var(--text-muted)', fontSize: '11px', marginTop: '2px' }}>
-                    {u.role === 'admin' ? '👑 Admin' : '👤 Funcionário'}
-                  </p>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <button onClick={e => { e.stopPropagation(); handleDelete(u.id) }}
-                    style={{ background: 'none', border: 'none', color: 'rgba(239,68,68,0.4)', cursor: 'pointer', padding: '4px', transition: 'color .2s' }}
-                    onMouseEnter={e => e.currentTarget.style.color = '#ef4444'}
-                    onMouseLeave={e => e.currentTarget.style.color = 'rgba(239,68,68,0.4)'}
-                  >
-                    <Trash2 size={13} />
-                  </button>
-                  <ChevronRight size={13} style={{ color: 'var(--text-muted)' }} />
-                </div>
+                transition: 'background .2s',
+              }}>
+                {editingId === u.id ? (
+                  /* MODO EDIÇÃO */
+                  <div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <label style={{ color: 'var(--text-muted)', fontSize: '11px', display: 'block', marginBottom: '3px' }}>Nome</label>
+                      <input value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} style={editInputStyle}/>
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <label style={{ color: 'var(--text-muted)', fontSize: '11px', display: 'block', marginBottom: '3px' }}>E-mail</label>
+                      <input value={editForm.email} onChange={e => setEditForm({ ...editForm, email: e.target.value })} style={editInputStyle}/>
+                    </div>
+                    {editError && <p style={{ color: '#ef4444', fontSize: '11px', marginBottom: '6px' }}>{editError}</p>}
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button onClick={() => handleSaveEdit(u.id)} style={{
+                        flex: 1, background: 'var(--accent)', color: '#fff', border: 'none',
+                        borderRadius: '6px', padding: '6px', fontSize: '12px', cursor: 'pointer',
+                        fontFamily: 'Inter, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
+                      }}>
+                        <Check size={12}/> Salvar
+                      </button>
+                      <button onClick={() => setEditingId(null)} style={{
+                        flex: 1, background: 'none', border: '1px solid var(--border)', color: 'var(--text-muted)',
+                        borderRadius: '6px', padding: '6px', fontSize: '12px', cursor: 'pointer', fontFamily: 'Inter, sans-serif',
+                      }}>
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* MODO VISUALIZAÇÃO */
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
+                    onClick={() => fetchHistory(u.email)}>
+                    <div>
+                      <p style={{ color: 'var(--text)', fontSize: '13px', marginBottom: '2px', fontWeight: 500 }}>{u.name}</p>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '11px' }}>{u.email}</p>
+                      <p style={{ color: u.role === 'admin' ? 'var(--accent)' : 'var(--text-muted)', fontSize: '11px', marginTop: '2px' }}>
+                        {u.role === 'admin' ? '👑 Admin' : '👤 Funcionário'}
+                      </p>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <button onClick={e => { e.stopPropagation(); handleEdit(u) }}
+                        style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', padding: '4px', transition: 'opacity .2s', opacity: 0.6 }}
+                        onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                        onMouseLeave={e => e.currentTarget.style.opacity = '0.6'}
+                      >
+                        <Edit2 size={13} />
+                      </button>
+                      <button onClick={e => { e.stopPropagation(); handleDelete(u.id) }}
+                        style={{ background: 'none', border: 'none', color: 'rgba(239,68,68,0.4)', cursor: 'pointer', padding: '4px', transition: 'color .2s' }}
+                        onMouseEnter={e => e.currentTarget.style.color = '#ef4444'}
+                        onMouseLeave={e => e.currentTarget.style.color = 'rgba(239,68,68,0.4)'}
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                      <ChevronRight size={13} style={{ color: 'var(--text-muted)' }} />
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
 
-          <div style={{ background: 'var(--card)', borderRadius: '10px', border: '1px solid var(--border)', overflow: 'hidden', animation: 'slideInR .4s both' }}>
+          {/* Histórico */}
+          <div style={{ background: 'var(--card)', borderRadius: '10px', border: '1px solid var(--border)', overflow: 'hidden' }}>
             {!selectedUser ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '250px', color: 'var(--text-muted)' }}>
-                <Clock size={36} style={{ marginBottom: '10px', opacity: 0.4 }} />
+                <Clock size={32} style={{ marginBottom: '10px', opacity: 0.4 }} />
                 <p style={{ fontSize: '13px' }}>Selecione um usuário para ver o histórico</p>
               </div>
             ) : (
               <>
                 <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Clock size={14} style={{ color: 'var(--accent)' }} />
-                    <span style={{ color: 'var(--text)', fontSize: '13px', fontWeight: 500 }}>Histórico de {selectedUser}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
+                    <Clock size={14} style={{ color: 'var(--accent)', flexShrink: 0 }} />
+                    <span style={{ color: 'var(--text)', fontSize: '13px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      Histórico de {selectedUser}
+                    </span>
                   </div>
-                  <button onClick={() => { setSelected(null); setHistory([]) }} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                  <button onClick={() => { setSelected(null); setHistory([]) }} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', flexShrink: 0 }}>
                     <X size={15} />
                   </button>
                 </div>
@@ -151,15 +224,15 @@ export default function AdminPanel() {
                     {history.map((h, i) => (
                       <div key={h.id} style={{ padding: '12px 16px', borderBottom: '1px solid var(--border2)', animation: `fadeUp .3s ${i * 0.04}s both` }}>
                         <p style={{ color: 'var(--text)', fontSize: '13px', marginBottom: '6px', lineHeight: 1.4 }}>{h.question}</p>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '8px' }}>
                           <span style={{ color: '#10B981', fontSize: '11px' }}>✓ {h.status}</span>
                           <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>{new Date(h.created_at).toLocaleString('pt-BR')}</span>
                           {h.tables && h.tables.split(', ').filter(Boolean).map(t => (
                             <span key={t} style={{ background: 'var(--accent-dim)', border: '1px solid var(--border)', borderRadius: '4px', padding: '1px 6px', fontSize: '10px', color: 'var(--accent)' }}>{t}</span>
                           ))}
                         </div>
-                        <div style={{ marginTop: '8px', background: 'var(--code-bg)', borderRadius: '6px', padding: '8px', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', color: 'var(--text-muted)', overflowX: 'auto', whiteSpace: 'pre', border: '1px solid var(--border2)' }}>
-                          {h.sql?.slice(0, 200)}{h.sql?.length > 200 ? '...' : ''}
+                        <div style={{ background: 'var(--code-bg)', borderRadius: '6px', padding: '8px', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', color: 'var(--text-muted)', overflowX: 'auto', whiteSpace: 'pre', border: '1px solid var(--border2)', maxHeight: '120px', overflowY: 'auto' }}>
+                          {h.sql?.slice(0, 300)}{h.sql?.length > 300 ? '...' : ''}
                         </div>
                       </div>
                     ))}
@@ -201,7 +274,7 @@ export default function AdminPanel() {
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, background: 'none', border: '1px solid var(--border)', borderRadius: '8px', padding: '12px', color: 'var(--text-muted)', fontSize: '13px', cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>Cancelar</button>
                 <button type="submit" disabled={loading} style={{ flex: 1, background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: '8px', padding: '12px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif', opacity: loading ? 0.7 : 1 }}>
-                  {loading ? 'Criando...' : 'Criar Usuário'}
+                  {loading ? 'Criando...' : 'Criar'}
                 </button>
               </div>
             </form>
