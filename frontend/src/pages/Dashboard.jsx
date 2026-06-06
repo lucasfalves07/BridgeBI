@@ -71,6 +71,11 @@ export default function Dashboard() {
     navigate('/thinking')
   }
 
+  const handleReuse = (sql, tables, explanation) => {
+    sessionStorage.setItem('bridgebi_result', JSON.stringify({ sql, tables: tables ? tables.split(', ').filter(Boolean) : [], explanation: explanation || 'Consulta reutilizada do histórico.' }))
+    navigate('/editor')
+  }
+
   const inputStyle = {
     width: '100%', background: 'var(--input-bg)', color: 'var(--text)',
     border: '1px solid var(--border)', borderRadius: '8px',
@@ -222,7 +227,19 @@ export default function Dashboard() {
                       <div style={{ overflowY: 'auto', maxHeight: '400px' }}>
                         {history.map((h, i) => (
                           <div key={h.id} style={{ padding: '12px 16px', borderBottom: '1px solid var(--border2)', animation: `fadeUp .3s ${i * 0.04}s both` }}>
-                            <p style={{ color: 'var(--text)', fontSize: '13px', marginBottom: '6px', lineHeight: 1.4 }}>{h.question}</p>
+                            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', marginBottom: '6px' }}>
+                              <p style={{ color: 'var(--text)', fontSize: '13px', lineHeight: 1.4, flex: 1 }}>{h.question}</p>
+                              <button onClick={() => handleReuse(h.sql, h.tables, h.question)} style={{
+                                flexShrink: 0, background: 'none', border: '1px solid var(--border)',
+                                borderRadius: '6px', padding: '4px 10px', color: 'var(--accent)', fontSize: '11px',
+                                cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'background .2s', whiteSpace: 'nowrap',
+                              }}
+                                onMouseEnter={e => e.currentTarget.style.background = 'var(--accent-dim)'}
+                                onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                              >
+                                Ver script →
+                              </button>
+                            </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
                               <span style={{ color: '#10B981', fontSize: '11px' }}>✓ {h.status}</span>
                               <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>{new Date(h.created_at).toLocaleString('pt-BR')}</span>
@@ -230,8 +247,10 @@ export default function Dashboard() {
                                 <span key={t} style={{ background: 'var(--accent-dim)', border: '1px solid var(--border)', borderRadius: '4px', padding: '1px 6px', fontSize: '10px', color: 'var(--accent)' }}>{t}</span>
                               ))}
                             </div>
-                            {/* Script com scroll horizontal */}
-                            <div style={{ background: 'var(--code-bg)', borderRadius: '6px', padding: '8px', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', color: 'var(--text-muted)', overflowX: 'auto', whiteSpace: 'pre', border: '1px solid var(--border2)', maxHeight: '120px', overflowY: 'auto' }}>
+                            <div onClick={() => handleReuse(h.sql, h.tables, h.question)} style={{ background: 'var(--code-bg)', borderRadius: '6px', padding: '8px', fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', color: 'var(--text-muted)', overflowX: 'auto', whiteSpace: 'pre', border: '1px solid var(--border2)', maxHeight: '120px', overflowY: 'auto', cursor: 'pointer', transition: 'border-color .2s' }}
+                              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
+                              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border2)'}
+                            >
                               {h.sql?.slice(0, 300)}{h.sql?.length > 300 ? '...' : ''}
                             </div>
                           </div>
