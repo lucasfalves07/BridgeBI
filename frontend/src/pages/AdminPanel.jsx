@@ -61,6 +61,15 @@ export default function AdminPanel() {
     setHistory([])
   }
 
+  const handleReuse = (sql, tables, question) => {
+    sessionStorage.setItem('bridgebi_result', JSON.stringify({
+      sql,
+      tables: tables ? tables.split(', ').filter(Boolean) : [],
+      explanation: question || 'Consulta reutilizada do histórico.'
+    }))
+    navigate('/editor')
+  }
+
   const handleEdit = (user) => {
     setEditingId(user.id)
     setEditForm({ name: user.name, email: user.email })
