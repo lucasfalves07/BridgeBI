@@ -36,8 +36,24 @@ export default function Editor() {
   const result = raw ? JSON.parse(raw) : null
   const sql    = result?.sql || '-- Nenhum script disponível.\n-- Volte ao dashboard e faça uma consulta.'
 
+  const fallbackCopy = () => {
+    const textarea = document.createElement('textarea')
+    textarea.value = sql
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    document.body.appendChild(textarea)
+    textarea.focus()
+    textarea.select()
+    try { document.execCommand('copy') } catch {}
+    document.body.removeChild(textarea)
+  }
+
   const handleCopy = () => {
-    navigator.clipboard.writeText(sql).catch(() => {})
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(sql).catch(() => fallbackCopy())
+    } else {
+      fallbackCopy()
+    }
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
