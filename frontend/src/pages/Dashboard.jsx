@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Search, ShoppingCart, Package, Database, Users, Plus, Trash2, ChevronRight, Clock, X } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import { useTheme } from '../hooks/useTheme'
+import API_URL from '../config'
 
 const quickLinks = [
   { icon: ShoppingCart, label: 'Compras',  table: 'EKPO', question: 'Mostrar todas as ordens de compra do último mês' },
@@ -28,13 +29,13 @@ export default function Dashboard() {
   useEffect(() => { if (isAdmin) fetchUsers() }, [])
 
   const fetchUsers = async () => {
-    const res = await fetch('/api/users')
+    const res = await fetch(`${API_URL}/users`)
     setUsers(await res.json())
   }
 
   const fetchHistory = async (email) => {
     setSelected(email)
-    const res = await fetch(`/api/history/${encodeURIComponent(email)}`)
+    const res = await fetch(`${API_URL}/history/${encodeURIComponent(email)}`)
     setHistory(await res.json())
   }
 
@@ -42,7 +43,7 @@ export default function Dashboard() {
     e.preventDefault()
     setFormError('')
     setLoadingForm(true)
-    const res = await fetch('/api/users', {
+    const res = await fetch(`${API_URL}/users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
@@ -60,7 +61,7 @@ export default function Dashboard() {
 
   const handleDelete = async (id) => {
     if (!confirm('Deseja remover este usuário?')) return
-    await fetch(`/api/users/${id}`, { method: 'DELETE' })
+    await fetch(`${API_URL}/users/${id}`, { method: 'DELETE' })
     fetchUsers(); setSelected(null); setHistory([])
   }
 

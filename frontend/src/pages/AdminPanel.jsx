@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Users, Plus, Trash2, Clock, ChevronRight, X, Edit2, Check } from 'lucide-react'
 import Navbar from '../components/Navbar'
+import API_URL from '../config'
 
 export default function AdminPanel() {
   const navigate  = useNavigate()
@@ -23,13 +24,13 @@ export default function AdminPanel() {
   }, [])
 
   const fetchUsers = async () => {
-    const res = await fetch('/api/users')
+    const res = await fetch(`${API_URL}/users`)
     setUsers(await res.json())
   }
 
   const fetchHistory = async (email) => {
     setSelected(email)
-    const res = await fetch(`/api/history/${encodeURIComponent(email)}`)
+    const res = await fetch(`${API_URL}/history/${encodeURIComponent(email)}`)
     setHistory(await res.json())
   }
 
@@ -37,7 +38,7 @@ export default function AdminPanel() {
     e.preventDefault()
     setError('')
     setLoading(true)
-    const res = await fetch('/api/users', {
+    const res = await fetch(`${API_URL}/users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
@@ -55,7 +56,7 @@ export default function AdminPanel() {
 
   const handleDelete = async (id) => {
     if (!confirm('Deseja remover este usuário?')) return
-    await fetch(`/api/users/${id}`, { method: 'DELETE' })
+    await fetch(`${API_URL}/users/${id}`, { method: 'DELETE' })
     fetchUsers()
     setSelected(null)
     setHistory([])
@@ -78,7 +79,7 @@ export default function AdminPanel() {
 
   const handleSaveEdit = async (id) => {
     setEditError('')
-    const res = await fetch(`/api/users/${id}`, {
+    const res = await fetch(`${API_URL}/users/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(editForm),

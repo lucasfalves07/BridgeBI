@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Copy, Check, Download, Database } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import { useTheme } from '../hooks/useTheme'
+import API_URL from '../config'
 
 const KEYWORDS = ['SELECT','FROM','WHERE','INNER JOIN','LEFT JOIN','ORDER BY','ON','AND','IN','AS','GROUP BY','HAVING','DISTINCT']
 
@@ -64,7 +65,7 @@ export default function Editor() {
       action: async () => {
         setShowModal(false)
         try {
-          const res = await fetch('/api/generate-powerbi', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sql, tables: result?.tables || [] }) })
+          const res = await fetch(`${API_URL}/generate-powerbi`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sql, tables: result?.tables || [] }) })
           if (!res.ok) throw new Error()
           const blob = await res.blob()
           const url = URL.createObjectURL(blob)
@@ -79,7 +80,7 @@ export default function Editor() {
       action: async () => {
         setShowModal(false)
         try {
-          const res = await fetch('/api/generate-csv', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sql, tables: result?.tables || [] }) })
+          const res = await fetch(`${API_URL}/generate-csv`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sql, tables: result?.tables || [] }) })
           if (!res.ok) throw new Error()
           const blob = await res.blob()
           const url = URL.createObjectURL(blob)

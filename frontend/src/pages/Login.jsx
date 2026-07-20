@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { User, Lock } from 'lucide-react'
 import NetworkBackground from '../components/NetworkBackground'
 import { useTheme } from '../hooks/useTheme'
+import API_URL from '../config'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -17,7 +18,7 @@ export default function Login() {
     setError('')
     setLoading(true)
     try {
-      const res = await fetch('/api/login', {
+      const res = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

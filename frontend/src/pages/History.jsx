@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Clock, CheckCircle2, ArrowRight } from 'lucide-react'
 import Navbar from '../components/Navbar'
+import API_URL from '../config'
 
 export default function History() {
   const navigate = useNavigate()
@@ -15,7 +16,7 @@ export default function History() {
     const email = user.email || ''
     const role  = user.role  || 'funcionario'
     const params = new URLSearchParams({ user_email: email, role })
-    fetch(`/api/history?${params}`)
+    fetch(`${API_URL}/history?${params}`)
       .then(r => { if (!r.ok) throw new Error('Erro ao buscar histórico'); return r.json() })
       .then(data => { setItems(data); setLoading(false) })
       .catch(e => { setError(e.message); setLoading(false) })
