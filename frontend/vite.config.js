@@ -7,7 +7,7 @@ export default defineConfig({
     host: '0.0.0.0',
     proxy: {
       '/api': {
-        target: 'https://bridgebi-backend.onrender.com',
+        target: 'https://bridgebi.onrender.com',
         changeOrigin: true,
       }
     }
