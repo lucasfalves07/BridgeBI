@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import Optional
 from groq_service import generate_sql
 from database import (init_db, save_query, get_history, get_history_by_user,
-                      get_all_users, create_user, delete_user, login_user)
+                      get_all_users, create_user, delete_user, login_user, get_conn)
 from csv_service import generate_csv
 from powerbi_service import generate_powerbi_file
 import uvicorn
@@ -39,6 +39,10 @@ class CreateUserRequest(BaseModel):
     password: str
     name: str
     role: str = "funcionario"
+
+class UpdateUserRequest(BaseModel):
+    name: str
+    email: str
 
 
 @app.get("/")
@@ -92,6 +96,24 @@ def add_user(req: CreateUserRequest):
     return {"message": "Usuário criado com sucesso"}
 
 
+@app.put("/api/users/{user_id}")
+def update_user(user_id: int, req: UpdateUserRequest):
+    conn = get_conn()
+    existing = conn.execute(
+        "SELECT * FROM users WHERE email = ? AND id != ?", (req.email, user_id)
+    ).fetchone()
+    if existing:
+        conn.close()
+        raise HTTPException(status_code=400, detail="E-mail já está em uso")
+    conn.execute(
+        "UPDATE users SET name = ?, email = ? WHERE id = ?",
+        (req.name, req.email, user_id)
+    )
+    conn.commit()
+    conn.close()
+    return {"message": "Usuário atualizado com sucesso"}
+
+
 @app.delete("/api/users/{user_id}")
 def remove_user(user_id: int):
     delete_user(user_id)
@@ -125,4 +147,4 @@ def tables():
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8001, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)
