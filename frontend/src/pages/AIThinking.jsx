@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CheckCircle2, ArrowRight } from 'lucide-react'
 import { useTheme } from '../hooks/useTheme'
-import API_URL from '../config'
 
 const STEPS = [
   'Identificando intenção de negócio...',
@@ -44,7 +43,7 @@ export default function AIThinking() {
       if (current >= STEPS.length) clearInterval(interval)
     }, 1000)
 
-    fetch(`${API_URL}/generate`, {
+    fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question, user_email: userEmail }),
