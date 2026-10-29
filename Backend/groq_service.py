@@ -44,7 +44,7 @@ Responda APENAS com um JSON válido no seguinte formato (sem markdown, sem expli
 async def generate_sql(question: str) -> dict:
     try:
         response = await client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="qwen/qwen3.8-27b",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": f"Pergunta de negócio: {question}"}
@@ -74,3 +74,4 @@ async def generate_sql(question: str) -> dict:
         }
     except Exception as e:
         raise Exception(f"Erro ao chamar Groq API: {str(e)}")
+
